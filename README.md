@@ -113,19 +113,21 @@ If you are running the AI on a different machine (like a dedicated home server o
 ## 📂 Project Structure
 
 ```text
-GUARDIAN_REVIEWER/               
+GUARDIAN_REVIEWER/               
+├── .env                  # Hidden configuration (Model name, base url)
+├── .gitignore            # Version control rules (Prevents leaking .env to GitHub)
 ├── core/
-|   ├── app.py            # Streamlit UI & orchestration logic
-│   └── api_client.py     # Ollama API connection
-├── agents/               # Specialized Prompt Definitions
-│   ├── context_agent.py
-│   ├── bug_agent.py
-│   ├── style_agent.py
-│   ├── best_practice.py
-│   ├── mentor.py
-│   ├── scoring_agent.py
-│   └── refining_agent.py # Master Architect rewrite logic
-└── requirements.txt      # Dependencies (Streamlit, python-dotenv, requests)
+|   ├── app.py            # Streamlit UI & orchestration logic
+│   └── api_client.py     # Ollama API connection
+├── agents/               # Specialized Prompt Definitions
+│   ├── context_agent.py
+│   ├── bug_agent.py
+│   ├── style_agent.py
+│   ├── best_practice.py
+│   ├── mentor.py
+│   ├── scoring_agent.py
+│   └── refining_agent.py # Master Architect rewrite logic
+└── requirements.txt      # Dependencies (Streamlit, python-dotenv, requests)
 ```
 ---
 
