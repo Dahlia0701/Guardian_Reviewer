@@ -3,7 +3,7 @@ import re
 import sys
 import os
 
-# Add the parent directory to sys.path
+# Adding parent directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from core.api_client import call_local_ai
@@ -20,8 +20,7 @@ from agents import (
 # Page Config
 st.set_page_config(page_title="AI Code Reviewer", layout="wide", page_icon="🚀")
 
-# --- SESSION STATE INITIALIZATION ---
-# This keeps the data alive between button clicks
+# SESSION STATE INITIALIZATION : role : keeping data alive between button clicks 
 if 'analysis_results' not in st.session_state:
     st.session_state.analysis_results = None
 if 'combined_reports' not in st.session_state:
@@ -49,7 +48,7 @@ with st.sidebar:
         st.rerun()
 st.markdown(f"Enter your **{selected_lang.upper()}** code below for a deep analysis.")
 
-# --- MAIN UI ---
+# MAIN UI
 user_code = st.text_area("📄 Write your Code here:", height=250, placeholder="def my_func()...")
 
 # STEP 1: ANALYSIS BUTTON
@@ -82,12 +81,11 @@ if st.button("🔍 Run Full Analysis"):
             st.session_state.combined_reports = combined
             
             # Parse Score
-            # Use multiline search to ensure we get the right lines
             score_match = re.search(r"^Score:\s*(\d+)", score_raw, re.IGNORECASE | re.MULTILINE)
             st.session_state.final_score = int(score_match.group(1)) if score_match else 0
             reason_match = re.search(r"^Reason:\s*(.*)", score_raw, re.IGNORECASE | re.MULTILINE)
             
-            # Robust Fallback: if "Reason:" isn't found, use the first line of the AI response
+            # handling Fallback issue 
             if reason_match:
                 st.session_state.verdict = reason_match.group(1)
             elif score_raw.strip():
@@ -97,7 +95,7 @@ if st.button("🔍 Run Full Analysis"):
             
             status.update(label="✅ Analysis Complete!", state="complete", expanded=False)
 
-# --- DISPLAY ANALYSIS RESULTS (If they exist) ---
+# DISPLAY ANALYSIS RESULTS
 if st.session_state.analysis_results:
     m1, m2, m3 = st.columns(3)
     m1.metric("Code Quality Score", f"{st.session_state.final_score}/100")
@@ -112,7 +110,7 @@ if st.session_state.analysis_results:
             st.markdown(f"### {name} Analysis")
             st.write(report)
 
-    # STEP 2: REFINING SECTION
+    # REFINING SECTION
     st.divider()
     st.subheader("🛠️ Master Architect Optimization")
     st.write("Ready to fix the issues found above?")
@@ -133,7 +131,7 @@ if st.session_state.analysis_results:
                 st.success(f"**Improved Code in {selected_lang.upper()}**")
                 st.code(improved_code, language=selected_lang)
 
-            #For downloading improved code using mapping
+            #For downloading 
             ext_map = {
                 "python": "py", "javascript": "js", "java": "java", 
                 "c": "c", "cpp": "cpp", "csharp": "cs", "ruby": "rb", 
