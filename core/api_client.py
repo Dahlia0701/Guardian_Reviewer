@@ -3,14 +3,14 @@ import json
 import os
 from dotenv import load_dotenv
 
-# Load the variables from the .env file
+# Loading variables from the .env file
 load_dotenv()
 
 def call_local_ai(instruction, code_context):
     """
     Connects to Ollama using settings from the .env file.
     """
-    # Fetch settings from .env (with fallback defaults just in case)
+    # Fetching settings from .env (with fallback)
     url = f"{os.getenv('OLLAMA_BASE_URL', 'http://localhost:11434')}/api/generate"
     model_name = os.getenv('OLLAMA_MODEL', 'qwen2.5-coder:0.5b')
     
@@ -30,7 +30,7 @@ def call_local_ai(instruction, code_context):
             return f"⚠️ Ollama Error: {response.status_code}"
     except Exception as e:
         return f"❌ Error: {str(e)}"
-# --- QUICK TEST BLOCK ---
+# TEST BLOCK to see if api_client working properly 
 if __name__ == "__main__":
     print("Testing the Bridge...")
     test_code = "print('Hello World')"
