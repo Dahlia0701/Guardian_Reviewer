@@ -2,6 +2,8 @@ import streamlit as st
 import re
 import sys
 import os
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Adding parent directory to sys.path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -43,6 +45,7 @@ with st.sidebar:
     "ruby", "r", "go", "rust", "php", "swift", 
     "kotlin", "typescript", "html", "css", "sql"]
     selected_lang = st.selectbox("🌐 Select Code Language:", languages, index=0)
+    run_mode=st.radio("Execution Mode(for testing)",["Sequential","Parallel"])
     if st.button("Clear Cache & Reset"):
         st.session_state.analysis_results = None
         st.rerun()
@@ -63,13 +66,35 @@ if st.button("🔍 Run Full Analysis"):
                 "Bugs": bug_agent.get_bug_agent_prompt(selected_lang),
                 "Style": style_agent.get_style_agent_prompt(selected_lang),
                 "Best Practices": best_practice.get_best_practices_prompt(selected_lang),
-                "Mentor": mentor.get_mentor_prompt(selected_lang)
             }
 
+            start=time.perf_counter() #starting stopwatch
+
             results = {}
-            for name, prompt in agents_to_run.items():
-                st.write(f"Calling {name} Agent...")
-                results[name] = call_local_ai(prompt, user_code)
+            if run_mode == "Sequential":
+                for name, prompt in agents_to_run.items():
+                    st.write(f"Calling {name} Agent...")
+                    results[name] = call_local_ai(prompt, user_code)
+            else:  # Parallel
+                with ThreadPoolExecutor(max_workers=4) as executor:
+                    futures = {executor.submit(call_local_ai, prompt, user_code): name
+                               for name, prompt in agents_to_run.items()}
+                    for future in as_completed(futures):
+                        name = futures[future]
+                        st.write(f"{name} Agent done")
+                        results[name] = future.result()
+
+            # Mentor runs after ,using the other agents findings
+            st.write("Calling Mentor Agent...")
+            mentor_prompt=mentor.get_mentor_prompt(selected_lang)
+            findings_so_far = "\n".join([f"{k}: {v}" for k, v in results.items()])
+            mentor_context = f"CODE:\n{user_code}\n\nAGENT FINDINGS SO FAR:\n{findings_so_far}"
+            results["Mentor"] = call_local_ai(mentor_prompt, mentor_context)
+
+            elapsed = time.perf_counter() - start  # stop the stopwatch
+            st.session_state.last_elapsed = elapsed
+            st.write(f"⏱️ Total time: {elapsed:.2f} seconds ({run_mode} mode)")
+
 
             st.write("Calculating final score...")
             score_prompt = scoring_agent.get_scoring_agent_prompt(selected_lang)
