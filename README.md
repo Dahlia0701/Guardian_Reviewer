@@ -62,6 +62,28 @@ This project is built to be **Privacy-First** and **Hardware-Accessible**.
 
 ---
 
+## Performance Evaluation
+
+Tested across 3 code samples (bug-free, single real bug, multiple real bugs) 
+on local Ollama models via CPU inference.
+
+### Accuracy
+| Model | Correct Diagnoses | Notes |
+|---|---|---|
+| qwen2.5-coder:0.5b | 0/3 | Hallucinated bugs not present in code; misdescribed actual logic |
+| qwen2.5-coder:7b | 3/3 | Correctly identified real edge cases and missing error handling |
+
+### Latency (avg across samples, 4 parallel agents)
+| Model | Sequential | Parallel | Change |
+|---|---|---|---|
+| qwen2.5-coder:0.5b | 7.47s | 8.19s | -9.6% (parallel overhead > inference time) |
+| qwen2.5-coder:7b | 32.14s | 29.33s | +8.7% |
+
+**Takeaway:** Model size matters more than concurrency for output quality. 
+0.5B is viable only where speed and full offline capability outweigh 
+accuracy; 7B is recommended when correctness matters, and benefits 
+measurably from parallelized agent execution.
+
 ## 🚀 Installation & Setup
 
 ### 1. Prerequisites
